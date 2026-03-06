@@ -23,6 +23,13 @@ export class BookService {
   getBooks(): Observable<Book[]> {
     return this.http.get<Book[]>(this.baseUrl);
   }
+  //get available book
+  getAvailableCount() {
+  return this.http.get<number>(
+    `${this.baseUrl}/available-count`,
+    // this.getHeaders()
+  );
+}
 
   // Get book by id
   getBookById(id: number): Observable<Book> {

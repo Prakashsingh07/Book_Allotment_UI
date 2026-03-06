@@ -69,6 +69,22 @@ export const routes: Routes = [
     data: { role: 'User' }
   },
   {
+  path: 'user/my-activity',
+  loadComponent: () =>
+    import('../app/features/user/my-activity/my-activity')
+      .then(m => m.MyActivityComponent),
+  canActivate: [authGuard],
+  data: { role: 'User' }
+},
+{
+  path: 'user/profile',
+  loadComponent: () =>
+    import('../app/features/user/Profile/profile')
+      .then(m => m.ProfileComponent),
+  canActivate: [authGuard],
+  data: { role: 'User' }
+},
+  {
     path: 'user/my-books',
     component: MyBooksComponent,
     canActivate: [authGuard, roleGuard],

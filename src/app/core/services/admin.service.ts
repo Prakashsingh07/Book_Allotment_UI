@@ -1,42 +1,48 @@
 import { Injectable } from '@angular/core';
-import { HttpClient, HttpHeaders } from '@angular/common/http';
+import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
+import { Observable } from 'rxjs';
+
+export interface AdminDashboard {
+  totalUsers: number;
+  totalBooks: number;
+  pendingCount: number;
+}
 
 @Injectable({
   providedIn: 'root'
 })
 export class AdminService {
 
-  private apiUrl = 'https://localhost:7278/api';
+  private apiUrl = 'https://localhost:7278/api/dashboard';
 
   constructor(private http: HttpClient) {}
 
-  private getAuthHeaders() {
+  // 🔐 Attach JWT Token
+  private getAuthHeaders(): HttpHeaders {
     const token = localStorage.getItem('token');
-    return {
-      headers: new HttpHeaders({
-        Authorization: `Bearer ${token}`
-      })
-    };
+    return new HttpHeaders({
+      Authorization: `Bearer ${token}`
+    });
   }
 
-  getUserCount() {
-    return this.http.get<number>(
-      `${this.apiUrl}/users/count`,
-      this.getAuthHeaders()
-    );
-  }
+  // 📊 Get Dashboard Data (with optional filters)
+  getDashboard(filters: any): Observable<AdminDashboard> {
 
-  getBookCount() {
-    return this.http.get<number>(
-      `${this.apiUrl}/books/count`,
-      this.getAuthHeaders()
-    );
-  }
+    let params = new HttpParams();
 
-  getPendingCount() {
-    return this.http.get<number>(
-      `${this.apiUrl}/requests/pending/count`,
-      this.getAuthHeaders()
+    // ✅ Append filters only if they exist
+    Object.keys(filters).forEach(key => {
+      if (filters[key]) {
+        params = params.append(key, filters[key]);
+      }
+    });
+
+    return this.http.get<AdminDashboard>(
+      this.apiUrl,
+      {
+        headers: this.getAuthHeaders(),
+        params: params
+      }
     );
   }
 }

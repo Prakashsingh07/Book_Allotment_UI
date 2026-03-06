@@ -9,86 +9,83 @@ import { BookService } from '../../../core/services/book.service';
   template: `
 <div class="min-h-screen bg-gradient-to-br from-slate-100 to-slate-200 p-10">
 
-  <!-- Header Section -->
-  <div class="mb-10 bg-white rounded-3xl shadow-xl p-8">
-    <h2 class="text-4xl font-bold bg-gradient-to-r from-indigo-600 to-purple-600 
-               bg-clip-text text-transparent">
-      Manage Books
-    </h2>
-    <p class="text-gray-500 mt-2 text-lg">
-      Add, update and manage book inventory
-    </p>
+  <!-- Header + Filter -->
+  <div class="mb-10 bg-white rounded-3xl shadow-xl p-8 flex justify-between items-center">
+
+    <div>
+      <h2 class="text-4xl font-bold bg-gradient-to-r from-indigo-600 to-purple-600 
+                 bg-clip-text text-transparent">
+        Manage Books
+      </h2>
+      <p class="text-gray-500 mt-2 text-lg">
+        Add, update and manage book inventory
+      </p>
+    </div>
+
+    <!-- Compact Category Filter -->
+    <div class="flex items-center gap-3">
+
+      <select [(ngModel)]="selectedCategory"
+              class="px-3 py-2 rounded-lg border text-sm w-40
+                     focus:ring-2 focus:ring-indigo-500 outline-none">
+        <option value="">All</option>
+        <option value="Fiction">Fiction</option>
+        <option value="Technology">Technology</option>
+        <option value="History">History</option>
+        <option value="Science">Science</option>
+      </select>
+
+      <button
+        (click)="clearFilter()"
+        class="px-3 py-2 bg-gray-500 text-white text-sm rounded-lg hover:bg-gray-600">
+        Reset
+      </button>
+
+    </div>
+
   </div>
 
-  <!-- Add Book Card -->
+  <!-- Add Book -->
   <div class="bg-white rounded-3xl shadow-xl p-8 mb-10 border border-gray-100">
     <h3 class="text-xl font-semibold mb-6 text-gray-700">
       Add New Book
     </h3>
 
     <form #bookForm="ngForm">
-      <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
+      <div class="grid grid-cols-1 md:grid-cols-5 gap-6">
 
-        <!-- Title -->
-        <div>
-          <input
-            name="title"
-            required
-            [(ngModel)]="form.title"
-            #title="ngModel"
-            placeholder="Title"
-            class="w-full px-4 py-3 rounded-xl border border-gray-300
-                   focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500
-                   transition outline-none"/>
+        <input name="title" required
+          [(ngModel)]="form.title"
+          placeholder="Title"
+          class="input-field"/>
 
-          <p *ngIf="title.invalid && title.touched"
-             class="text-red-500 text-sm mt-1">
-            Title is required
-          </p>
-        </div>
+        <input name="author" required
+          [(ngModel)]="form.author"
+          placeholder="Author"
+          class="input-field"/>
 
-        <!-- Author -->
-        <div>
-          <input
-            name="author"
-            required
-            [(ngModel)]="form.author"
-            #author="ngModel"
-            placeholder="Author"
-            class="w-full px-4 py-3 rounded-xl border border-gray-300
-                   focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500
-                   transition outline-none"/>
+        <input type="number" name="quantity" required min="1"
+          [(ngModel)]="form.quantity"
+          placeholder="Quantity"
+          class="input-field"/>
 
-          <p *ngIf="author.invalid && author.touched"
-             class="text-red-500 text-sm mt-1">
-            Author is required
-          </p>
-        </div>
+        <select name="category"
+          [(ngModel)]="form.category"
+          class="input-field">
+          <option value="">Select Category</option>
+          <option value="Fiction">Fiction</option>
+          <option value="Technology">Technology</option>
+          <option value="History">History</option>
+          <option value="Science">Science</option>
+        </select>
 
-        <!-- Quantity -->
-        <div>
-          <input
-            type="number"
-            name="quantity"
-            required
-            min="1"
-            [(ngModel)]="form.quantity"
-            #quantity="ngModel"
-            placeholder="Quantity"
-            class="w-full px-4 py-3 rounded-xl border border-gray-300
-                   focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500
-                   transition outline-none"/>
+        <input name="tags"
+          [(ngModel)]="form.tags"
+          placeholder="Tags (comma separated)"
+          class="input-field"/>
 
-          <p *ngIf="quantity.invalid && quantity.touched"
-             class="text-red-500 text-sm mt-1">
-            Quantity must be at least 1
-          </p>
-        </div>
-
-        <!-- Add Button -->
-        <div class="flex items-start">
-          <button
-            type="button"
+        <div class="md:col-span-5">
+          <button type="button"
             (click)="addBook()"
             [disabled]="bookForm.invalid"
             class="w-full py-3 rounded-xl text-white font-semibold
@@ -107,86 +104,109 @@ import { BookService } from '../../../core/services/book.service';
   <div class="bg-white rounded-3xl shadow-xl overflow-hidden border border-gray-100">
     <table class="min-w-full">
 
-      <!-- Table Header -->
       <thead class="bg-gradient-to-r from-indigo-600 to-purple-600 text-white">
         <tr>
-          <th class="px-8 py-4 text-left text-sm uppercase tracking-wider">Title</th>
-          <th class="px-8 py-4 text-left text-sm uppercase tracking-wider">Author</th>
-          <th class="px-8 py-4 text-left text-sm uppercase tracking-wider">Quantity</th>
-          <th class="px-8 py-4 text-center text-sm uppercase tracking-wider">Actions</th>
+          <th class="px-6 py-4 text-left">Title</th>
+          <th class="px-6 py-4 text-left">Author</th>
+          <th class="px-6 py-4 text-left">Category</th>
+          <th class="px-6 py-4 text-left">Tags</th>
+          <th class="px-6 py-4 text-left">Qty</th>
+          <th class="px-6 py-4 text-center">Actions</th>
         </tr>
       </thead>
 
-      <!-- Table Body -->
       <tbody class="divide-y divide-gray-200">
 
-        <tr *ngFor="let book of books"
-            class="hover:bg-indigo-50 transition duration-200">
+        <tr *ngFor="let book of filteredBooks()"
+            class="hover:bg-indigo-50 transition">
 
           <!-- Title -->
-          <td class="px-8 py-5">
+          <td class="px-6 py-4">
             <input *ngIf="editId === book.id"
               [(ngModel)]="book.title"
-              class="w-full px-3 py-2 border rounded-lg"/>
-            <span *ngIf="editId !== book.id"
-                  class="font-medium text-gray-700">
+              class="input-edit"/>
+            <span *ngIf="editId !== book.id">
               {{book.title}}
             </span>
           </td>
 
           <!-- Author -->
-          <td class="px-8 py-5 text-gray-600">
+          <td class="px-6 py-4">
             <input *ngIf="editId === book.id"
               [(ngModel)]="book.author"
-              class="w-full px-3 py-2 border rounded-lg"/>
+              class="input-edit"/>
             <span *ngIf="editId !== book.id">
               {{book.author}}
             </span>
           </td>
 
+          <!-- Category -->
+          <td class="px-6 py-4">
+            <select *ngIf="editId === book.id"
+              [(ngModel)]="book.category"
+              class="input-edit">
+              <option value="Fiction">Fiction</option>
+              <option value="Technology">Technology</option>
+              <option value="History">History</option>
+              <option value="Science">Science</option>
+            </select>
+
+            <span *ngIf="editId !== book.id"
+                  class="text-indigo-600 font-medium">
+              {{book.category}}
+            </span>
+          </td>
+
+          <!-- Tags -->
+          <td class="px-6 py-4">
+            <input *ngIf="editId === book.id"
+              [(ngModel)]="book.tags"
+              class="input-edit"/>
+
+            <div *ngIf="editId !== book.id">
+              <span *ngFor="let tag of book.tags?.split(',')"
+                class="bg-gray-200 px-2 py-1 text-xs rounded mr-1">
+                {{tag}}
+              </span>
+            </div>
+          </td>
+
           <!-- Quantity -->
-          <td class="px-8 py-5 text-gray-600">
+          <td class="px-6 py-4">
             <input *ngIf="editId === book.id"
               type="number"
               [(ngModel)]="book.quantity"
-              class="w-full px-3 py-2 border rounded-lg"/>
+              class="input-edit"/>
+
             <span *ngIf="editId !== book.id">
               {{book.quantity}}
             </span>
           </td>
 
           <!-- Actions -->
-          <td class="px-8 py-5 text-center space-x-3">
+          <td class="px-6 py-4 text-center space-x-2">
 
             <button *ngIf="editId !== book.id"
               (click)="startEdit(book.id)"
-              class="px-4 py-2 rounded-lg text-white bg-yellow-500 hover:bg-yellow-600 shadow transition">
-              Edit
-            </button>
+              class="btn-yellow">Edit</button>
 
             <button *ngIf="editId === book.id"
               (click)="updateBook(book)"
-              class="px-4 py-2 rounded-lg text-white bg-green-600 hover:bg-green-700 shadow transition">
-              Save
-            </button>
+              class="btn-green">Save</button>
 
             <button *ngIf="editId === book.id"
               (click)="cancelEdit()"
-              class="px-4 py-2 rounded-lg text-white bg-gray-500 hover:bg-gray-600 shadow transition">
-              Cancel
-            </button>
+              class="btn-gray">Cancel</button>
 
             <button (click)="delete(book.id)"
-              class="px-4 py-2 rounded-lg text-white bg-red-600 hover:bg-red-700 shadow transition">
-              Delete
-            </button>
+              class="btn-red">Delete</button>
 
           </td>
+
         </tr>
 
-        <!-- Empty State -->
-        <tr *ngIf="books.length === 0">
-          <td colspan="4" class="text-center py-8 text-gray-500 text-lg">
+        <tr *ngIf="filteredBooks().length === 0">
+          <td colspan="6" class="text-center py-8 text-gray-500">
             No books available
           </td>
         </tr>
@@ -196,17 +216,38 @@ import { BookService } from '../../../core/services/book.service';
   </div>
 
 </div>
-`
+`,
+styles: [`
+  .input-field {
+    width:100%;
+    padding:12px;
+    border-radius:12px;
+    border:1px solid #ccc;
+  }
+  .input-edit {
+    width:100%;
+    padding:6px;
+    border:1px solid #ccc;
+    border-radius:6px;
+  }
+  .btn-yellow { background:#eab308; color:white; padding:6px 12px; border-radius:8px; }
+  .btn-green { background:#16a34a; color:white; padding:6px 12px; border-radius:8px; }
+  .btn-gray { background:#6b7280; color:white; padding:6px 12px; border-radius:8px; }
+  .btn-red { background:#dc2626; color:white; padding:6px 12px; border-radius:8px; }
+`]
 })
 export class ManageBooksComponent implements OnInit {
 
   books: any[] = [];
   editId: number | null = null;
+  selectedCategory: string = '';
 
   form: any = {
     title: '',
     author: '',
-    quantity: 1
+    quantity: 1,
+    category: '',
+    tags: ''
   };
 
   constructor(private bookService: BookService) {}
@@ -220,7 +261,20 @@ export class ManageBooksComponent implements OnInit {
       .subscribe(res => this.books = res);
   }
 
-  // Add Book with validation safety
+  filteredBooks() {
+    if (!this.selectedCategory) {
+      return this.books;
+    }
+
+    return this.books.filter(book =>
+      book.category === this.selectedCategory
+    );
+  }
+
+  clearFilter() {
+    this.selectedCategory = '';
+  }
+
   addBook() {
     if (!this.form.title || !this.form.author || this.form.quantity < 1) {
       return;
@@ -228,7 +282,13 @@ export class ManageBooksComponent implements OnInit {
 
     this.bookService.addBook(this.form)
       .subscribe(() => {
-        this.form = { title: '', author: '', quantity: 1 };
+        this.form = {
+          title: '',
+          author: '',
+          quantity: 1,
+          category: '',
+          tags: ''
+        };
         this.loadBooks();
       });
   }
